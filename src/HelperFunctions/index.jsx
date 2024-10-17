@@ -162,10 +162,7 @@ export const clickDetection = (e,internalWritingData) => {
                 }*/
                 clickedObjectIndex = 0;
                 break;
-
-        }
-        
+        } 
     }
-
-
+    return clickedObjectIndex;
 }
