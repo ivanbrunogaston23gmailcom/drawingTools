@@ -50,17 +50,14 @@ export const addStroke = (canvasReference,strokeInfo) => {
                 ctx.lineTo(strokeInfo.plotPoints[i].xCoordinate,strokeInfo.plotPoints[i].yCoordinate);
             }
         break;
+        default:
+            alert(`invalid drawing tool ${strokeInfo.toolType}`);
     }
     ctx.stroke();
     return ctx;
 }
 
 export const getTriangleArea = (point1, point2, point3) => {
-    const checkObject = {
-        point1: point1,
-        point2: point2,
-        point3: point3,
-    }
     const sideA = Math.sqrt(Math.abs(point1[0] - point2[0]) ** 2 + Math.abs(point1[1] - point2[1]) ** 2);
     const sideB = Math.sqrt(Math.abs(point2[0] - point3[0]) ** 2 + Math.abs(point2[1] - point3[1]) ** 2);
     const sideC = Math.sqrt(Math.abs(point3[0] - point1[0]) ** 2 + Math.abs(point3[1] - point1[1]) ** 2);
@@ -83,19 +80,53 @@ export const triangleClickDetection = (trianglePointA, trianglePointB, triangleP
 
 }
 
-export const pathPointDetection = (clickPoint, pathPoint, tolerance) => {
+export const pathPointDetection = (e, pathPoints, tolerance) => {
+    if (pathPoints.length === 0) {
+        return false;
+    }
+    if (pathPoints.length === 1) {
+        return lineClickDetection(e,pathPoints[0], pathPoints[0], tolerance);
+    }
 
-    const xSide = Math.abs(clickPoint[0] - pathPoint[0]);
-    const ySide = Math.abs(clickPoint[1] - pathPoint[1]);
-
-    const hypotenuse = Math.sqrt(xSide * xSide + ySide * ySide);
-
-    if(hypotenuse <= tolerance) {
-        return true;
+    for (let i = 1; i < pathPoints.length ; i++){
+        const lineClickResult = lineClickDetection(e,pathPoints[i-1], pathPoints[i], tolerance);
+        if (lineClickResult === true){
+            return true;
+        }
     }
     return false;
 }
 
+export const lineClickDetection =(e,pathPointOne, pathPointTwo, tolerance)=> {
+    if (pathPointOne.xCoordinate === pathPointTwo.xCoordinate) {
+        if (pathPointOne.yCoordinate === pathPointTwo.yCoordinate) {
+            const xSide = Math.abs(e.clientX - pathPointOne.xCoordinate);
+            const ySide = Math.abs(e.clientY - pathPointOne.yCoordinate);
+            const hypotenuse = Math.sqrt(xSide * xSide + ySide * ySide);  
+            if(hypotenuse <= tolerance) {
+                return true;
+            }
+        }
+        if (
+            e.clientX >= pathPointOne.xCoordinate - tolerance &&
+            e.clientX <= pathPointOne.xCoordinate + tolerance &&
+            e.clientY >= Math.min(pathPointOne.yCoordinate,pathPointTwo.yCoordinate) - tolerance &&
+            e.clientY <= Math.max(pathPointOne.yCoordinate,pathPointTwo.yCoordinate) + tolerance
+        ) {
+            return true;
+        }
+        return false;
+    }
+    const furthestLeftLinePoint = (pathPointOne.xCoordinate < pathPointTwo.xCoordinate) ? pathPointOne : pathPointTwo;
+    const furthestRightLinePoint = (pathPointOne.xCoordinate > pathPointTwo.xCoordinate) ? pathPointOne : pathPointTwo;
+    const lineSlope = ((furthestLeftLinePoint.yCoordinate - furthestRightLinePoint.yCoordinate)/(furthestLeftLinePoint.xCoordinate - furthestRightLinePoint.xCoordinate));
+    const yIntercept = furthestLeftLinePoint.yCoordinate - lineSlope * furthestLeftLinePoint.xCoordinate;
+    const lineMeasurePoint = lineSlope * e.clientX + yIntercept;
+    if (e.clientY >= lineMeasurePoint - tolerance && e.clientY <= lineMeasurePoint + tolerance) {
+        return true;
+    }
+    return false;
+}
 
 
 export const clickDetection = (e,internalWritingData) => {
@@ -107,7 +138,7 @@ export const clickDetection = (e,internalWritingData) => {
                 const ySide = Math.abs(e.clientY - internalWritingData[i].startingPosition[1]);
                 const hypotenuse = Math.sqrt(xSide * xSide + ySide * ySide);
                 if (hypotenuse <= (internalWritingData[i].radius + internalWritingData[i].lineWidth - 5)) {
-                    clickedObjectIndex = i;
+                    return i;
                 }
                 break;
             case "hollow rectangle":
@@ -116,7 +147,7 @@ export const clickDetection = (e,internalWritingData) => {
                 if ((e.clientX >= internalWritingData[i].startingPosition[0] && e.clientX <= upperLeftXCoord) &&
                     (e.clientY >= internalWritingData[i].startingPosition[1] && e.clientY <= lowerRightyCoord)
                 ) {
-                    clickedObjectIndex = i;
+                    return i;
                 }
                 break;
 
@@ -126,7 +157,7 @@ export const clickDetection = (e,internalWritingData) => {
                 if ((e.clientX >= internalWritingData[i].startingPosition[0] && e.clientX <= upperLeftXCoordinate) &&
                     (e.clientY >= internalWritingData[i].startingPosition[1] && e.clientY <= lowerRightyCoordinate)
                 ) {
-                    clickedObjectIndex = i;
+                    return i;
                 }
                 break;
 
@@ -137,7 +168,7 @@ export const clickDetection = (e,internalWritingData) => {
                 const userClickPoint = [e.clientX,e.clientY];
 
                 if (triangleClickDetection(trianglePlotPointA, trianglePlotPointB, trianglePlotPointC, userClickPoint)) {
-                    clickedObjectIndex = i;
+                    return i;
                 }
                 break;
             case "hollow triangle":                   
@@ -147,22 +178,46 @@ export const clickDetection = (e,internalWritingData) => {
                 const clickPoint = [e.clientX,e.clientY];
 
                 if (triangleClickDetection(trianglePlotA, trianglePlotB, trianglePlotC, clickPoint)) {
-                    clickedObjectIndex = i;
+                    return i;
                 }
                 break;
             case "pen tool":
-                /*const userClick = [e.clientX,e.clientY];
-                if (pathPointDetection(userClick,internalWritingData[i].startingPosition,(internalWritingData[i].lineWidth/2))) {
-                    alert(`you clicked within the hollow triangle: ${i}`);
-                    return;
+                const pathPoints = [];
+                const startingPath = {
+                    xCoordinate: internalWritingData[i].startingPosition[0],
+                    yCoordinate: internalWritingData[i].startingPosition[1]
                 }
-                
-                for (let i = 0; i < internalWritingData[i].plotPoint2[0]; i++) {
-
-                }*/
-                clickedObjectIndex = 0;
+                pathPoints.push(startingPath,...internalWritingData[i].plotPoints);
+                if (pathPointDetection(e, pathPoints, internalWritingData[i].lineWidth)){
+                    return i;
+                }       
+                break;
+            default:
                 break;
         } 
     }
     return clickedObjectIndex;
 }
+
+
+export const handleDrag = (e,selectedShape,internalWritingData) => {
+    let writingData = internalWritingData;
+
+    switch (writingData[selectedShape].toolType){        
+        case 'filled rectangle':            
+        case 'hollow rectangle':
+        case 'ellipse':
+            writingData[selectedShape].startingPosition[0] = e.clientX;
+            writingData[selectedShape].startingPosition[1] = e.clientY;
+            break;
+        case 'hollow triangle':
+        break;
+        case 'filled triangle':
+        break;
+        case 'pen tool':
+
+        break;
+        default:
+           // alert(`invalid drawing tool ${strokeInfo.toolType}`);
+    }
+};
