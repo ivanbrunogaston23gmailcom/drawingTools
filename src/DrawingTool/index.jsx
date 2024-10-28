@@ -1,11 +1,17 @@
 import React, {useState, useEffect, useRef} from 'react';
 
-import { addStroke, triangleClickDetection, clickDetection, handleDrag } from '../HelperFunctions';
+import { addStroke, clickDetection, handleDrag } from '../HelperFunctions';
 
 const DrawingTool = ({writingData}) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth - 20);
     const [windowHeight, setWindowHeight] = useState(window.innerHeight - 20);
     const lastMouseDragPosition = useRef({xCoordinate: -1, yCoordinate: -1});
+    const drawingInProgress = useRef(false);
+    const newShapeParams = useRef({
+        shapeType: "pen tool",
+        shapeColor: "#0abab5",
+        lineWidth: 10
+    });
     let selectedShape = -1;
     let internalWritingData = null;
     let canvasContainer = null;
@@ -16,19 +22,36 @@ const DrawingTool = ({writingData}) => {
         if (results >= 0 ) {
             selectedShape = results;
             return;
-        }
-        
-        paintShape(e);
+        }      
+        paintShape(e,newShapeParams);
     }
     const unClickdetectionHandler = (e)=> {
         selectedShape = -1;
         lastMouseDragPosition.current = {xCoordinate: -1, yCoordinate: -1};
+        drawingInProgress.current = false;
     }
-
+    const paintShape = (e,shapeParams) => {
+        drawingInProgress.current = true;
+        let newShape = null;
+        switch(shapeParams.current.shapeType) {
+            case "pen tool":
+                newShape = {
+                    toolType: shapeParams.current.shapeType,
+                    color: shapeParams.current.shapeColor,
+                    lineWidth: shapeParams.current.lineWidth,
+                    startingPosition: [e.clientX,e.clientY],
+                    plotPoints: [],
+                }
+              break;
+            default:      
+        }
+        if (newShape !== null) {
+            internalWritingData.push(newShape);
+            selectedShape = internalWritingData.length-1;
+        } 
+    }
     const dragHandler = (e) =>{
-        
-        if (selectedShape >=0) {
-            //console.log(e);
+        if (!drawingInProgress.current && selectedShape >=0) {
             if (lastMouseDragPosition.current.xCoordinate === -1 || lastMouseDragPosition.current.yCoordinate === -1) {
                 lastMouseDragPosition.current.xCoordinate = e.clientX;
                 lastMouseDragPosition.current.yCoordinate = e.clientY;
@@ -60,21 +83,44 @@ const DrawingTool = ({writingData}) => {
             lastMouseDragPosition.current.xCoordinate = e.clientX;
             lastMouseDragPosition.current.yCoordinate = e.clientY;
         }
-    }
+        if (drawingInProgress.current && selectedShape >=0) {
+            switch(internalWritingData[selectedShape].toolType) {
+                
+                case "pen tool":
+                    const newPlotPoint = [e.clientX,e.clientY];
+                    const pointCount = internalWritingData[selectedShape].plotPoints.length;
 
-    const paintShape = (e) => {
+                    let lastPlotPoint = [];
+                    if (pointCount > 0) {
+                        lastPlotPoint.push(internalWritingData[selectedShape].plotPoints[pointCount - 1].xCoordinate);
+                        lastPlotPoint.push(internalWritingData[selectedShape].plotPoints[pointCount - 1].yCoordinate);
+                    } else {
+                        lastPlotPoint = internalWritingData[selectedShape].startingPosition;
+                    }
+                    const xSide = Math.abs(lastPlotPoint[0] - newPlotPoint[0]);
+                    const ySide = Math.abs(lastPlotPoint[1] - newPlotPoint[1]);
+                    const hypotenuse = Math.sqrt((xSide * xSide) + (ySide * ySide));
 
-        const newShape = {
-            toolType: "filled triangle",
-            color: "yellow",
-            lineWidth: 10,
-            startingPosition: [e.clientX,e.clientY],
-            plotPoint2: [e.clientX-200,e.clientY+300],
-            plotPoint3: [e.clientX+100,e.clientY+600]
+                    if (hypotenuse > 10) {
+                        const newPointToAdd = {
+                            xCoordinate: newPlotPoint[0],
+                            yCoordinate: newPlotPoint[1]
+                        }
+                        internalWritingData[selectedShape].plotPoints.push(newPointToAdd);
+                        const ctxt = newCanvas.getContext("2d");
+                        ctxt.clearRect(0, 0, newCanvas.width, newCanvas.height);
+                        for (let i = 0; i < internalWritingData.length; i++) {
+                            addStroke(newCanvas,internalWritingData[i]);
+                        }
+                    }
+                    return;                    
+                  break;
+                default:
+            }
         }
-        internalWritingData.push(newShape);
-        addStroke(newCanvas,newShape);
     }
+
+
     useEffect(()=>{
         internalWritingData = writingData;
         canvasContainer = document.createElement("div");

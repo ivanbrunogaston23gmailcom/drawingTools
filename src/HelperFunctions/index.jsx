@@ -117,7 +117,15 @@ export const lineClickDetection =(e,pathPointOne, pathPointTwo, tolerance)=> {
         }
         return false;
     }
-    const furthestLeftLinePoint = (pathPointOne.xCoordinate < pathPointTwo.xCoordinate) ? pathPointOne : pathPointTwo;
+
+    if (
+        e.clientX > Math.max(pathPointOne.xCoordinate,pathPointTwo.xCoordinate) + tolerance ||
+        e.clientX < Math.min(pathPointOne.xCoordinate,pathPointTwo.xCoordinate) - tolerance
+    ) {
+        return false;
+    }
+
+    const furthestLeftLinePoint = (pathPointOne.xCoordinate <= pathPointTwo.xCoordinate) ? pathPointOne : pathPointTwo;
     const furthestRightLinePoint = (pathPointOne.xCoordinate > pathPointTwo.xCoordinate) ? pathPointOne : pathPointTwo;
     const lineSlope = ((furthestLeftLinePoint.yCoordinate - furthestRightLinePoint.yCoordinate)/(furthestLeftLinePoint.xCoordinate - furthestRightLinePoint.xCoordinate));
     const yIntercept = furthestLeftLinePoint.yCoordinate - lineSlope * furthestLeftLinePoint.xCoordinate;
@@ -188,7 +196,7 @@ export const clickDetection = (e,internalWritingData) => {
                     yCoordinate: internalWritingData[i].startingPosition[1]
                 }
                 pathPoints.push(startingPath,...internalWritingData[i].plotPoints);
-                if (pathPointDetection(e, pathPoints, internalWritingData[i].lineWidth)){
+                if (pathPointDetection(e, pathPoints, internalWritingData[i].lineWidth/2)){
                     return i;
                 }       
                 break;
