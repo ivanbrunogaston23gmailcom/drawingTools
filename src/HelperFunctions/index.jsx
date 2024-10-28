@@ -200,22 +200,32 @@ export const clickDetection = (e,internalWritingData) => {
 }
 
 
-export const handleDrag = (e,selectedShape,internalWritingData) => {
+export const handleDrag = (dragOffset,selectedShape,internalWritingData) => {
     let writingData = internalWritingData;
 
     switch (writingData[selectedShape].toolType){        
         case 'filled rectangle':            
         case 'hollow rectangle':
         case 'ellipse':
-            writingData[selectedShape].startingPosition[0] = e.clientX;
-            writingData[selectedShape].startingPosition[1] = e.clientY;
+            writingData[selectedShape].startingPosition[0] = writingData[selectedShape].startingPosition[0] + dragOffset.xCoordinate;
+            writingData[selectedShape].startingPosition[1] = writingData[selectedShape].startingPosition[1] + dragOffset.yCoordinate;
             break;
         case 'hollow triangle':
-        break;
         case 'filled triangle':
+        writingData[selectedShape].startingPosition[0] = writingData[selectedShape].startingPosition[0] + dragOffset.xCoordinate;
+        writingData[selectedShape].startingPosition[1] = writingData[selectedShape].startingPosition[1] + dragOffset.yCoordinate;
+        writingData[selectedShape].plotPoint2[0] = writingData[selectedShape].plotPoint2[0] + dragOffset.xCoordinate;
+        writingData[selectedShape].plotPoint2[1] = writingData[selectedShape].plotPoint2[1] + dragOffset.yCoordinate;
+        writingData[selectedShape].plotPoint3[0] = writingData[selectedShape].plotPoint3[0] + dragOffset.xCoordinate;
+        writingData[selectedShape].plotPoint3[1] = writingData[selectedShape].plotPoint3[1] + dragOffset.yCoordinate;
         break;
         case 'pen tool':
-
+            writingData[selectedShape].startingPosition[0] = writingData[selectedShape].startingPosition[0] + dragOffset.xCoordinate;
+            writingData[selectedShape].startingPosition[1] = writingData[selectedShape].startingPosition[1] + dragOffset.yCoordinate;
+            for (let i = 0; i < writingData[selectedShape].plotPoints.length; i++ ) {
+                writingData[selectedShape].plotPoints[i].xCoordinate = writingData[selectedShape].plotPoints[i].xCoordinate + dragOffset.xCoordinate;
+                writingData[selectedShape].plotPoints[i].yCoordinate = writingData[selectedShape].plotPoints[i].yCoordinate + dragOffset.yCoordinate;
+            }
         break;
         default:
            // alert(`invalid drawing tool ${strokeInfo.toolType}`);

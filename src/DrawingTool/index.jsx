@@ -1,10 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 
 import { addStroke, triangleClickDetection, clickDetection, handleDrag } from '../HelperFunctions';
 
 const DrawingTool = ({writingData}) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth - 20);
     const [windowHeight, setWindowHeight] = useState(window.innerHeight - 20);
+    const lastMouseDragPosition = useRef({xCoordinate: -1, yCoordinate: -1});
     let selectedShape = -1;
     let internalWritingData = null;
     let canvasContainer = null;
@@ -21,13 +22,23 @@ const DrawingTool = ({writingData}) => {
     }
     const unClickdetectionHandler = (e)=> {
         selectedShape = -1;
+        lastMouseDragPosition.current = {xCoordinate: -1, yCoordinate: -1};
     }
 
     const dragHandler = (e) =>{
         
         if (selectedShape >=0) {
             //console.log(e);
-            handleDrag(e,selectedShape,internalWritingData);
+            if (lastMouseDragPosition.current.xCoordinate === -1 || lastMouseDragPosition.current.yCoordinate === -1) {
+                lastMouseDragPosition.current.xCoordinate = e.clientX;
+                lastMouseDragPosition.current.yCoordinate = e.clientY;
+            }
+
+            const dragOffset = {
+                xCoordinate: e.clientX - lastMouseDragPosition.current.xCoordinate,
+                yCoordinate: e.clientY - lastMouseDragPosition.current.yCoordinate
+            };
+            handleDrag(dragOffset,selectedShape,internalWritingData);
             /*if (selectedShape > 0) {
                 const moveobject = internalWritingData[selectedShape];
                 const newDrawingArray = [];
@@ -45,7 +56,9 @@ const DrawingTool = ({writingData}) => {
             ctx.clearRect(0, 0, newCanvas.width, newCanvas.height);
             for (let i = 0; i < internalWritingData.length; i++) {
                 addStroke(newCanvas,internalWritingData[i]);
-            }   
+            }
+            lastMouseDragPosition.current.xCoordinate = e.clientX;
+            lastMouseDragPosition.current.yCoordinate = e.clientY;
         }
     }
 
