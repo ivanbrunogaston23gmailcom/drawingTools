@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
-
 import { addStroke, clickDetection, handleDrag } from '../HelperFunctions';
+import DrawingToolCanvas from './DrawingToolCanvas';
+import DrawingToolInteraction from './DrawingToolInteraction';
 
 const DrawingTool = ({writingData}) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth - 20);
@@ -16,6 +17,20 @@ const DrawingTool = ({writingData}) => {
     let internalWritingData = null;
     let canvasContainer = null;
     let newCanvas = null;
+
+    const sendCanvasReferenceCallBack = (inboundCanvasContainer,inboundCanvas) => {
+        internalWritingData = writingData;
+        newCanvas = inboundCanvas;
+        for (let i = 0; i < internalWritingData.length; i++) {
+            addStroke(newCanvas,internalWritingData[i]);
+        }
+        canvasContainer = inboundCanvasContainer;
+        canvasContainer.style.position = "relative";
+        canvasContainer.style.top = "0px";
+        canvasContainer.style.left = "0px";
+        canvasContainer.style.zIndex = 1;
+        document.getElementById("presentation").appendChild(canvasContainer);
+    }
 
     const clickdetectionHandler = (e)=> {
         const results = clickDetection(e,internalWritingData);        
@@ -101,7 +116,7 @@ const DrawingTool = ({writingData}) => {
                     const ySide = Math.abs(lastPlotPoint[1] - newPlotPoint[1]);
                     const hypotenuse = Math.sqrt((xSide * xSide) + (ySide * ySide));
 
-                    if (hypotenuse > 10) {
+                    if (hypotenuse > 7) {
                         const newPointToAdd = {
                             xCoordinate: newPlotPoint[0],
                             yCoordinate: newPlotPoint[1]
@@ -114,7 +129,6 @@ const DrawingTool = ({writingData}) => {
                         }
                     }
                     return;                    
-                  break;
                 default:
             }
         }
@@ -122,25 +136,6 @@ const DrawingTool = ({writingData}) => {
 
 
     useEffect(()=>{
-        internalWritingData = writingData;
-        canvasContainer = document.createElement("div");
-        canvasContainer.width = '100%';
-        canvasContainer.height = '100%';
-        newCanvas = document.createElement("canvas");
-        canvasContainer.appendChild(newCanvas);
-        newCanvas.height = windowHeight;
-        newCanvas.width = windowWidth;
-        /*
-            canvasContainer.style.left
-            canvasContainer.style.top
-            canvasContainer.style.position = 'fixed';
-        */
-        newCanvas.style.zIndex = 20;
-        newCanvas.style.border = "2px solid black";
-        for (let i = 0; i < internalWritingData.length; i++) {
-            addStroke(newCanvas,internalWritingData[i]);
-        }
-        document.body.appendChild(canvasContainer);
         newCanvas.addEventListener('mousedown', clickdetectionHandler);
         newCanvas.addEventListener("mouseup", unClickdetectionHandler);
         newCanvas.addEventListener("mousemove", dragHandler);
@@ -148,13 +143,20 @@ const DrawingTool = ({writingData}) => {
             newCanvas.removeEventListener('mousedown',clickdetectionHandler);
             newCanvas.removeEventListener("mouseup", unClickdetectionHandler);
             newCanvas.removeEventListener("mousemove", dragHandler);
-            canvasContainer.remove()
         });
     }
     ,[]);
     return (
-        <div>
+        <div id="presentation">
+            <DrawingToolInteraction
 
+            />
+            <DrawingToolCanvas
+                width ={windowWidth}
+                height={windowHeight}
+                sendCanvasReferenceCallBack={sendCanvasReferenceCallBack}
+                showDrawings={true}
+            />
         </div>
     );
 }
