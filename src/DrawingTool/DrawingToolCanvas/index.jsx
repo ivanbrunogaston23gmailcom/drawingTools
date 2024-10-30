@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import './index.css';
 const DrawingToolCanvas = ({
     width,
     height,
@@ -17,6 +18,7 @@ const DrawingToolCanvas = ({
         canvasContainer = document.createElement("div");
         canvasContainer.width = internalWidth;
         canvasContainer.height = internalHeight;
+        canvasContainer.className = "react-drawing-tool-canvas";
         newCanvas = document.createElement("canvas");
         canvasContainer.appendChild(newCanvas);
         newCanvas.height = internalHeight;

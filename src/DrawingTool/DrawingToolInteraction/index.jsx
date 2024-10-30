@@ -16,7 +16,7 @@ const DrawingToolInteraction = ({
 
     return (
     <>
-        <div className ={"interactions"}>
+        <div className ={"react-drawing-tool-interactions"}>
             Container
         </div>
         {

@@ -10,7 +10,7 @@ const DrawingTool = ({writingData}) => {
     const drawingInProgress = useRef(false);
     const newShapeParams = useRef({
         shapeType: "pen tool",
-        shapeColor: "#0abab5",
+        shapeColor: "brown",
         lineWidth: 10
     });
     let selectedShape = -1;
@@ -25,14 +25,11 @@ const DrawingTool = ({writingData}) => {
             addStroke(newCanvas,internalWritingData[i]);
         }
         canvasContainer = inboundCanvasContainer;
-        canvasContainer.style.position = "relative";
-        canvasContainer.style.top = "0px";
-        canvasContainer.style.left = "0px";
-        canvasContainer.style.zIndex = 1;
         document.getElementById("presentation").appendChild(canvasContainer);
     }
 
     const clickdetectionHandler = (e)=> {
+        console.log("e",e);
         const results = clickDetection(e,internalWritingData);        
         if (results >= 0 ) {
             selectedShape = results;
@@ -54,7 +51,7 @@ const DrawingTool = ({writingData}) => {
                     toolType: shapeParams.current.shapeType,
                     color: shapeParams.current.shapeColor,
                     lineWidth: shapeParams.current.lineWidth,
-                    startingPosition: [e.clientX,e.clientY],
+                    startingPosition: [e.offsetX,e.offsetY],
                     plotPoints: [],
                 }
               break;
@@ -68,13 +65,13 @@ const DrawingTool = ({writingData}) => {
     const dragHandler = (e) =>{
         if (!drawingInProgress.current && selectedShape >=0) {
             if (lastMouseDragPosition.current.xCoordinate === -1 || lastMouseDragPosition.current.yCoordinate === -1) {
-                lastMouseDragPosition.current.xCoordinate = e.clientX;
-                lastMouseDragPosition.current.yCoordinate = e.clientY;
+                lastMouseDragPosition.current.xCoordinate = e.offsetX;
+                lastMouseDragPosition.current.yCoordinate = e.offsetY;
             }
 
             const dragOffset = {
-                xCoordinate: e.clientX - lastMouseDragPosition.current.xCoordinate,
-                yCoordinate: e.clientY - lastMouseDragPosition.current.yCoordinate
+                xCoordinate: e.offsetX - lastMouseDragPosition.current.xCoordinate,
+                yCoordinate: e.offsetY - lastMouseDragPosition.current.yCoordinate
             };
             handleDrag(dragOffset,selectedShape,internalWritingData);
             /*if (selectedShape > 0) {
@@ -95,14 +92,14 @@ const DrawingTool = ({writingData}) => {
             for (let i = 0; i < internalWritingData.length; i++) {
                 addStroke(newCanvas,internalWritingData[i]);
             }
-            lastMouseDragPosition.current.xCoordinate = e.clientX;
-            lastMouseDragPosition.current.yCoordinate = e.clientY;
+            lastMouseDragPosition.current.xCoordinate = e.offsetX;
+            lastMouseDragPosition.current.yCoordinate = e.offsetY;
         }
         if (drawingInProgress.current && selectedShape >=0) {
             switch(internalWritingData[selectedShape].toolType) {
                 
                 case "pen tool":
-                    const newPlotPoint = [e.clientX,e.clientY];
+                    const newPlotPoint = [e.offsetX,e.offsetY];
                     const pointCount = internalWritingData[selectedShape].plotPoints.length;
 
                     let lastPlotPoint = [];
@@ -147,7 +144,7 @@ const DrawingTool = ({writingData}) => {
     }
     ,[]);
     return (
-        <div id="presentation">
+        <div id="presentation" style={{position: "relative"}}>
             <DrawingToolInteraction
 
             />
