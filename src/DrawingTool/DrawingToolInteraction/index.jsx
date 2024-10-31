@@ -1,6 +1,7 @@
 import React from "react";
 import DrawingToolBar from "../DrawingToolBar";
 import './index.css';
+import DrawningToolDrawingTarget from "../DrawingToolDrawingTarget";
 
 
 
@@ -18,6 +19,7 @@ const DrawingToolInteraction = ({
     <>
         <div className ={"react-drawing-tool-interactions"}>
             Container
+            <DrawningToolDrawingTarget/>
         </div>
         {
             internalShowDrawingToolBar && (
