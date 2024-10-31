@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
-
 import { addStroke, clickDetection, handleDrag } from '../HelperFunctions';
+import DrawingToolCanvas from './DrawingToolCanvas';
+import DrawingToolInteraction from './DrawingToolInteraction';
 
 const DrawingTool = ({writingData}) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth - 20);
@@ -9,7 +10,7 @@ const DrawingTool = ({writingData}) => {
     const drawingInProgress = useRef(false);
     const newShapeParams = useRef({
         shapeType: "pen tool",
-        shapeColor: "#0abab5",
+        shapeColor: "brown",
         lineWidth: 10
     });
     let selectedShape = -1;
@@ -17,7 +18,18 @@ const DrawingTool = ({writingData}) => {
     let canvasContainer = null;
     let newCanvas = null;
 
+    const sendCanvasReferenceCallBack = (inboundCanvasContainer,inboundCanvas) => {
+        internalWritingData = writingData;
+        newCanvas = inboundCanvas;
+        for (let i = 0; i < internalWritingData.length; i++) {
+            addStroke(newCanvas,internalWritingData[i]);
+        }
+        canvasContainer = inboundCanvasContainer;
+        document.getElementById("presentation").appendChild(canvasContainer);
+    }
+
     const clickdetectionHandler = (e)=> {
+        console.log("e",e);
         const results = clickDetection(e,internalWritingData);        
         if (results >= 0 ) {
             selectedShape = results;
@@ -39,7 +51,7 @@ const DrawingTool = ({writingData}) => {
                     toolType: shapeParams.current.shapeType,
                     color: shapeParams.current.shapeColor,
                     lineWidth: shapeParams.current.lineWidth,
-                    startingPosition: [e.clientX,e.clientY],
+                    startingPosition: [e.offsetX,e.offsetY],
                     plotPoints: [],
                 }
               break;
@@ -53,13 +65,13 @@ const DrawingTool = ({writingData}) => {
     const dragHandler = (e) =>{
         if (!drawingInProgress.current && selectedShape >=0) {
             if (lastMouseDragPosition.current.xCoordinate === -1 || lastMouseDragPosition.current.yCoordinate === -1) {
-                lastMouseDragPosition.current.xCoordinate = e.clientX;
-                lastMouseDragPosition.current.yCoordinate = e.clientY;
+                lastMouseDragPosition.current.xCoordinate = e.offsetX;
+                lastMouseDragPosition.current.yCoordinate = e.offsetY;
             }
 
             const dragOffset = {
-                xCoordinate: e.clientX - lastMouseDragPosition.current.xCoordinate,
-                yCoordinate: e.clientY - lastMouseDragPosition.current.yCoordinate
+                xCoordinate: e.offsetX - lastMouseDragPosition.current.xCoordinate,
+                yCoordinate: e.offsetY - lastMouseDragPosition.current.yCoordinate
             };
             handleDrag(dragOffset,selectedShape,internalWritingData);
             /*if (selectedShape > 0) {
@@ -80,14 +92,14 @@ const DrawingTool = ({writingData}) => {
             for (let i = 0; i < internalWritingData.length; i++) {
                 addStroke(newCanvas,internalWritingData[i]);
             }
-            lastMouseDragPosition.current.xCoordinate = e.clientX;
-            lastMouseDragPosition.current.yCoordinate = e.clientY;
+            lastMouseDragPosition.current.xCoordinate = e.offsetX;
+            lastMouseDragPosition.current.yCoordinate = e.offsetY;
         }
         if (drawingInProgress.current && selectedShape >=0) {
             switch(internalWritingData[selectedShape].toolType) {
                 
                 case "pen tool":
-                    const newPlotPoint = [e.clientX,e.clientY];
+                    const newPlotPoint = [e.offsetX,e.offsetY];
                     const pointCount = internalWritingData[selectedShape].plotPoints.length;
 
                     let lastPlotPoint = [];
@@ -101,7 +113,7 @@ const DrawingTool = ({writingData}) => {
                     const ySide = Math.abs(lastPlotPoint[1] - newPlotPoint[1]);
                     const hypotenuse = Math.sqrt((xSide * xSide) + (ySide * ySide));
 
-                    if (hypotenuse > 10) {
+                    if (hypotenuse > 7) {
                         const newPointToAdd = {
                             xCoordinate: newPlotPoint[0],
                             yCoordinate: newPlotPoint[1]
@@ -114,7 +126,6 @@ const DrawingTool = ({writingData}) => {
                         }
                     }
                     return;                    
-                  break;
                 default:
             }
         }
@@ -122,25 +133,6 @@ const DrawingTool = ({writingData}) => {
 
 
     useEffect(()=>{
-        internalWritingData = writingData;
-        canvasContainer = document.createElement("div");
-        canvasContainer.width = '100%';
-        canvasContainer.height = '100%';
-        newCanvas = document.createElement("canvas");
-        canvasContainer.appendChild(newCanvas);
-        newCanvas.height = windowHeight;
-        newCanvas.width = windowWidth;
-        /*
-            canvasContainer.style.left
-            canvasContainer.style.top
-            canvasContainer.style.position = 'fixed';
-        */
-        newCanvas.style.zIndex = 20;
-        newCanvas.style.border = "2px solid black";
-        for (let i = 0; i < internalWritingData.length; i++) {
-            addStroke(newCanvas,internalWritingData[i]);
-        }
-        document.body.appendChild(canvasContainer);
         newCanvas.addEventListener('mousedown', clickdetectionHandler);
         newCanvas.addEventListener("mouseup", unClickdetectionHandler);
         newCanvas.addEventListener("mousemove", dragHandler);
@@ -148,13 +140,20 @@ const DrawingTool = ({writingData}) => {
             newCanvas.removeEventListener('mousedown',clickdetectionHandler);
             newCanvas.removeEventListener("mouseup", unClickdetectionHandler);
             newCanvas.removeEventListener("mousemove", dragHandler);
-            canvasContainer.remove()
         });
     }
     ,[]);
     return (
-        <div>
+        <div id="presentation" style={{position: "relative"}}>
+            <DrawingToolInteraction
 
+            />
+            <DrawingToolCanvas
+                width ={windowWidth}
+                height={windowHeight}
+                sendCanvasReferenceCallBack={sendCanvasReferenceCallBack}
+                showDrawings={true}
+            />
         </div>
     );
 }
