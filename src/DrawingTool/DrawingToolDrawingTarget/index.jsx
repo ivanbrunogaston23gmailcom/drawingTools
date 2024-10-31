@@ -9,11 +9,11 @@ const DrawningToolDrawingTarget = ({
     interactionInteractionCallBack,
     sideInteractionCallBack,
     height,
-    width
+    width,
 }) => {
     const internalHeight = (isNaN(height)) ? 100 : height;
     const internalWidth = (isNaN(width)) ? 100 : width;
-    const handleConerClick = (e) => {
+    const handleCornerClick = (e) => {
 
     }
 

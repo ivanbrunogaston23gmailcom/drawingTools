@@ -4,7 +4,8 @@ const DrawingToolCanvas = ({
     width,
     height,
     sendCanvasReferenceCallBack,
-    showDrawings
+    showDrawings,
+    zIndex
 }) => {
 
     const internalWidth = (!isNaN(width)) ? Number(width) : 0;
@@ -13,12 +14,14 @@ const DrawingToolCanvas = ({
     //const internalShowDrawings = (typeof showDrawings === "boolean") ? showDrawings : true;
     let newCanvas = null;
     let canvasContainer = null;
+    const internalZIndex = (!isNaN(zIndex) && Number(zIndex) >= 0 ) ? Number(zIndex) : 0;
 
     useEffect(()=>{
         canvasContainer = document.createElement("div");
         canvasContainer.width = internalWidth;
         canvasContainer.height = internalHeight;
         canvasContainer.className = "react-drawing-tool-canvas";
+        canvasContainer.style.zIndex = internalZIndex;
         newCanvas = document.createElement("canvas");
         canvasContainer.appendChild(newCanvas);
         newCanvas.height = internalHeight;

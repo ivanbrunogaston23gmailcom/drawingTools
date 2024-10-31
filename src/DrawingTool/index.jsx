@@ -3,9 +3,10 @@ import { addStroke, clickDetection, handleDrag } from '../HelperFunctions';
 import DrawingToolCanvas from './DrawingToolCanvas';
 import DrawingToolInteraction from './DrawingToolInteraction';
 
-const DrawingTool = ({writingData}) => {
-    const [windowWidth, setWindowWidth] = useState(window.innerWidth - 20);
-    const [windowHeight, setWindowHeight] = useState(window.innerHeight - 20);
+const DrawingTool = ({writingData, width, height, zIndex}) => {
+    const [windowWidth, setWindowWidth] = useState(width);
+    const [windowHeight, setWindowHeight] = useState(height);
+    const internalZIndex = (!isNaN(zIndex) && Number(zIndex) >= 0 ) ? Number(zIndex) : 0; 
     const lastMouseDragPosition = useRef({xCoordinate: -1, yCoordinate: -1});
     const drawingInProgress = useRef(false);
     const newShapeParams = useRef({
@@ -132,7 +133,7 @@ const DrawingTool = ({writingData}) => {
     }
 
 
-    useEffect(()=>{
+    /*useEffect(()=>{
         newCanvas.addEventListener('mousedown', clickdetectionHandler);
         newCanvas.addEventListener("mouseup", unClickdetectionHandler);
         newCanvas.addEventListener("mousemove", dragHandler);
@@ -142,17 +143,20 @@ const DrawingTool = ({writingData}) => {
             newCanvas.removeEventListener("mousemove", dragHandler);
         });
     }
-    ,[]);
+    ,[]);*/
     return (
-        <div id="presentation" style={{position: "relative"}}>
+        <div id="presentation" style={{position: "relative", zIndex: internalZIndex, width: windowWidth, height: windowHeight}}>
             <DrawingToolInteraction
-
+                width={windowWidth}
+                height={windowHeight}
+                zIndex={internalZIndex + 1}
             />
             <DrawingToolCanvas
                 width ={windowWidth}
                 height={windowHeight}
                 sendCanvasReferenceCallBack={sendCanvasReferenceCallBack}
                 showDrawings={true}
+                zIndex={internalZIndex}
             />
         </div>
     );
