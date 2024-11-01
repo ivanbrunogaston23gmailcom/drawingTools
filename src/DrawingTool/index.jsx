@@ -28,7 +28,9 @@ const DrawingTool = ({writingData, width, height, zIndex}) => {
         canvasContainer = inboundCanvasContainer;
         document.getElementById("presentation").appendChild(canvasContainer);
     }
-
+    const getInternalWritingData = () => {
+        return internalWritingData;
+    }
     const clickdetectionHandler = (e)=> {
         console.log("e",e);
         const results = clickDetection(e,internalWritingData);        
@@ -150,6 +152,7 @@ const DrawingTool = ({writingData, width, height, zIndex}) => {
                 width={windowWidth}
                 height={windowHeight}
                 zIndex={internalZIndex + 1}
+                getInternalWritingData={getInternalWritingData}
             />
             <DrawingToolCanvas
                 width ={windowWidth}
