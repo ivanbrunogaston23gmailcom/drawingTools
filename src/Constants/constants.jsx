@@ -17,7 +17,7 @@ export const writingData = [
         toolType: "hollow rectangle",
         color: "green",
         lineWidth: 10,
-        startingPosition: [0,510],
+        startingPosition: [10,510],
         width: 300,
         height: 300
     },
@@ -48,7 +48,7 @@ export const writingData = [
         toolType: "pen tool",
         color: "brown",
         lineWidth: 10,
-        startingPosition: [0,201],
+        startingPosition: [12,201],
         plotPoints: [
             
             {

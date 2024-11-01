@@ -1,31 +1,74 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import DrawingToolBar from "../DrawingToolBar";
 import './index.css';
 import DrawningToolDrawingTarget from "../DrawingToolDrawingTarget";
-
+import { addStroke, clickDetection, handleDrag } from '../../HelperFunctions';
+import { changeDrawingTargetFocus } from '../../HelperFunctions/ImageFocusTargetFunctions';
 
 
 const DrawingToolInteraction = ({
-    writingData,
+    getInternalWritingData,
     reportInteractionCallBack,
     showDrawingToolBar,
     zIndex
 }) => {
-    const internalWritingData = (typeof writingData === "object") ?  writingData : {};
+    const internalGetWritingData = (typeof getInternalWritingData !== "function") ?  getInternalWritingData : ()=> { return {}};
     const internalreportInteractionCallBack = (typeof reportInteractionCallBack === "function") ? reportInteractionCallBack : ()=>{};
     const internalShowDrawingToolBar = (typeof showDrawingToolBar === "boolean") ? showDrawingToolBar : true;
     const interactionLayerReference = useRef(null);
+    const currentlySelectedShape = useRef(-1);
+    const newShapeParams = useRef({
+        shapeType: "pen tool",
+        shapeColor: "brown",
+        lineWidth: 10
+    });
+    const [drawingTargetProps, setDrawingTargetProps] = useState({
+        height: 1,
+        width: 1,
+        top: 0,
+        left: 0,
+        isVisible: false
+    })
+
+    const handleClick = (e) => {
+        e.stopPropagation();
+        console.log(e);
+        const drawingInfo = getInternalWritingData();
+        const previouslySelectedShape = currentlySelectedShape.current;
+
+        currentlySelectedShape.current = clickDetection(e,drawingInfo);
+
+        if (previouslySelectedShape === currentlySelectedShape.current) {
+            return;
+        }
+        if (previouslySelectedShape >= 0 && currentlySelectedShape.current < 0) {
+            setDrawingTargetProps({
+                height: 1,
+                width: 1,
+                top: 0,
+                left: 0,
+                isVisible: false
+            });
+        }
+        if (previouslySelectedShape < 0 && currentlySelectedShape.current >= 0) {            
+            changeDrawingTargetFocus(setDrawingTargetProps,drawingInfo[currentlySelectedShape.current]);
+        }
+        if (previouslySelectedShape >= 0 && currentlySelectedShape.current >= 0 && previouslySelectedShape !== currentlySelectedShape.current) {
+            changeDrawingTargetFocus(setDrawingTargetProps,drawingInfo[currentlySelectedShape.current]);
+        }
+    }
+    
     const functionTest = (e) => {
-        console.log("e",e);
-        console.log(interactionLayerReference.current.parentElement);
+        /*console.log("e",e);
+        console.log(interactionLayerReference.current.parentElement);*/
     }
     const internalZIndex = (!isNaN(zIndex) && Number(zIndex) >= 0 ) ? Number(zIndex) : 1;
     useEffect(()=>{
-        interactionLayerReference.current.addEventListener('mousedown', functionTest);
+        interactionLayerReference.current.addEventListener('mousedown', handleClick);
         interactionLayerReference.current.addEventListener("mouseup", functionTest);
         interactionLayerReference.current.addEventListener("mousemove", functionTest);
         return (()=> { 
-            interactionLayerReference.current.removeEventListener('mousedown',functionTest);
+            interactionLayerReference.current.removeEventListener('mousedown',handleClick);
             interactionLayerReference.current.removeEventListener("mouseup", functionTest);
             interactionLayerReference.current.removeEventListener("mousemove", functionTest);
         })
@@ -38,7 +81,13 @@ const DrawingToolInteraction = ({
     >
         <div>
             Container
-            <DrawningToolDrawingTarget/>
+            <DrawningToolDrawingTarget
+                height = {drawingTargetProps.height}
+                width = {drawingTargetProps.width}
+                top = {drawingTargetProps.top}
+                left = {drawingTargetProps.left}
+                isVisible = {drawingTargetProps.isVisible}           
+            />
         </div>
         {
             internalShowDrawingToolBar && (
