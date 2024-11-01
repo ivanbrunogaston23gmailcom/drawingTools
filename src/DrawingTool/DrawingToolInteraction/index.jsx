@@ -32,7 +32,6 @@ const DrawingToolInteraction = ({
 
     const handleClick = (e) => {
         e.stopPropagation();
-        console.log(e);
         const drawingInfo = getInternalWritingData();
         const previouslySelectedShape = currentlySelectedShape.current;
 
