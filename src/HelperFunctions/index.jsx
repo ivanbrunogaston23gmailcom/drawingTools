@@ -100,18 +100,24 @@ export const pathPointDetection = (e, pathPoints, tolerance) => {
 export const lineClickDetection =(e,pathPointOne, pathPointTwo, tolerance)=> {
     if (pathPointOne.xCoordinate === pathPointTwo.xCoordinate) {
         if (pathPointOne.yCoordinate === pathPointTwo.yCoordinate) {
-            const xSide = Math.abs(e.offsetX - pathPointOne.xCoordinate);
-            const ySide = Math.abs(e.offsetY - pathPointOne.yCoordinate);
+            const xSide = Math.abs(e.offsetX
+ - pathPointOne.xCoordinate);
+            const ySide = Math.abs(e.offsetY
+ - pathPointOne.yCoordinate);
             const hypotenuse = Math.sqrt(xSide * xSide + ySide * ySide);  
             if(hypotenuse <= tolerance) {
                 return true;
             }
         }
         if (
-            e.offsetX >= pathPointOne.xCoordinate - tolerance &&
-            e.offsetX <= pathPointOne.xCoordinate + tolerance &&
-            e.offsetY >= Math.min(pathPointOne.yCoordinate,pathPointTwo.yCoordinate) - tolerance &&
-            e.offsetY <= Math.max(pathPointOne.yCoordinate,pathPointTwo.yCoordinate) + tolerance
+            e.offsetX
+ >= pathPointOne.xCoordinate - tolerance &&
+            e.offsetX
+ <= pathPointOne.xCoordinate + tolerance &&
+            e.offsetY
+ >= Math.min(pathPointOne.yCoordinate,pathPointTwo.yCoordinate) - tolerance &&
+            e.offsetY
+ <= Math.max(pathPointOne.yCoordinate,pathPointTwo.yCoordinate) + tolerance
         ) {
             return true;
         }
@@ -119,8 +125,10 @@ export const lineClickDetection =(e,pathPointOne, pathPointTwo, tolerance)=> {
     }
 
     if (
-        e.offsetX > Math.max(pathPointOne.xCoordinate,pathPointTwo.xCoordinate) + tolerance ||
-        e.offsetX < Math.min(pathPointOne.xCoordinate,pathPointTwo.xCoordinate) - tolerance
+        e.offsetX
+ > Math.max(pathPointOne.xCoordinate,pathPointTwo.xCoordinate) + tolerance ||
+        e.offsetX
+ < Math.min(pathPointOne.xCoordinate,pathPointTwo.xCoordinate) - tolerance
     ) {
         return false;
     }
@@ -129,8 +137,11 @@ export const lineClickDetection =(e,pathPointOne, pathPointTwo, tolerance)=> {
     const furthestRightLinePoint = (pathPointOne.xCoordinate > pathPointTwo.xCoordinate) ? pathPointOne : pathPointTwo;
     const lineSlope = ((furthestLeftLinePoint.yCoordinate - furthestRightLinePoint.yCoordinate)/(furthestLeftLinePoint.xCoordinate - furthestRightLinePoint.xCoordinate));
     const yIntercept = furthestLeftLinePoint.yCoordinate - lineSlope * furthestLeftLinePoint.xCoordinate;
-    const lineMeasurePoint = lineSlope * e.offsetX + yIntercept;
-    if (e.offsetY >= lineMeasurePoint - tolerance && e.offsetY <= lineMeasurePoint + tolerance) {
+    const lineMeasurePoint = lineSlope * e.offsetX
+ + yIntercept;
+    if (e.offsetY
+ >= lineMeasurePoint - tolerance && e.offsetY
+ <= lineMeasurePoint + tolerance) {
         return true;
     }
     return false;
@@ -142,8 +153,10 @@ export const clickDetection = (e,internalWritingData) => {
     for (let i = (internalWritingData.length - 1); i >= 0; i--) {
         switch (internalWritingData[i].toolType) {
             case "ellipse":
-                const xSide = Math.abs(e.offsetX - internalWritingData[i].startingPosition[0]);
-                const ySide = Math.abs(e.offsetY - internalWritingData[i].startingPosition[1]);
+                const xSide = Math.abs(e.offsetX
+ - internalWritingData[i].startingPosition[0]);
+                const ySide = Math.abs(e.offsetY
+ - internalWritingData[i].startingPosition[1]);
                 const hypotenuse = Math.sqrt(xSide * xSide + ySide * ySide);
                 if (hypotenuse <= (internalWritingData[i].radius + internalWritingData[i].lineWidth - 5)) {
                     return i;
@@ -152,8 +165,12 @@ export const clickDetection = (e,internalWritingData) => {
             case "hollow rectangle":
                 const upperLeftXCoord = internalWritingData[i].startingPosition[0] + internalWritingData[i].width + internalWritingData[i].lineWidth - 3;
                 const lowerRightyCoord = internalWritingData[i].startingPosition[1] + internalWritingData[i].width + internalWritingData[i].lineWidth - 3;
-                if ((e.offsetX >= internalWritingData[i].startingPosition[0] && e.offsetX <= upperLeftXCoord) &&
-                    (e.offsetY >= internalWritingData[i].startingPosition[1] && e.offsetY <= lowerRightyCoord)
+                if ((e.offsetX
+ >= internalWritingData[i].startingPosition[0] && e.offsetX
+ <= upperLeftXCoord) &&
+                    (e.offsetY
+ >= internalWritingData[i].startingPosition[1] && e.offsetY
+ <= lowerRightyCoord)
                 ) {
                     return i;
                 }
@@ -162,8 +179,12 @@ export const clickDetection = (e,internalWritingData) => {
             case "filled rectangle":
                 const upperLeftXCoordinate = internalWritingData[i].startingPosition[0] + internalWritingData[i].width;
                 const lowerRightyCoordinate = internalWritingData[i].startingPosition[1] + internalWritingData[i].width;
-                if ((e.offsetX >= internalWritingData[i].startingPosition[0] && e.offsetX <= upperLeftXCoordinate) &&
-                    (e.offsetY >= internalWritingData[i].startingPosition[1] && e.offsetY <= lowerRightyCoordinate)
+                if ((e.offsetX
+ >= internalWritingData[i].startingPosition[0] && e.offsetX
+ <= upperLeftXCoordinate) &&
+                    (e.offsetY
+ >= internalWritingData[i].startingPosition[1] && e.offsetY
+ <= lowerRightyCoordinate)
                 ) {
                     return i;
                 }
@@ -173,7 +194,9 @@ export const clickDetection = (e,internalWritingData) => {
                 const trianglePlotPointA = [internalWritingData[i].startingPosition[0],internalWritingData[i].startingPosition[1]];
                 const trianglePlotPointB = [internalWritingData[i].plotPoint2[0],internalWritingData[i].plotPoint2[1]];
                 const trianglePlotPointC = [internalWritingData[i].plotPoint3[0],internalWritingData[i].plotPoint3[1]];
-                const userClickPoint = [e.offsetX,e.offsetY];
+                const userClickPoint = [e.offsetX
+,e.offsetY
+];
 
                 if (triangleClickDetection(trianglePlotPointA, trianglePlotPointB, trianglePlotPointC, userClickPoint)) {
                     return i;
@@ -183,7 +206,9 @@ export const clickDetection = (e,internalWritingData) => {
                 const trianglePlotA = [internalWritingData[i].startingPosition[0],internalWritingData[i].startingPosition[1]];
                 const trianglePlotB = [internalWritingData[i].plotPoint2[0],internalWritingData[i].plotPoint2[1]];
                 const trianglePlotC = [internalWritingData[i].plotPoint3[0],internalWritingData[i].plotPoint3[1]];
-                const clickPoint = [e.offsetX,e.offsetY];
+                const clickPoint = [e.offsetX
+,e.offsetY
+];
 
                 if (triangleClickDetection(trianglePlotA, trianglePlotB, trianglePlotC, clickPoint)) {
                     return i;

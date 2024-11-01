@@ -15,12 +15,17 @@ const DrawingTool = ({writingData, width, height, zIndex}) => {
         lineWidth: 10
     });
     let selectedShape = -1;
-    let internalWritingData = null;
+    const [internalWritingData, setWritingData] = useState(writingData);
     let canvasContainer = null;
     let newCanvas = null;
-
+    const clearAndRepaintCanvas = (newWritingData)=> {
+        const ctx = newCanvas.getContext("2d");
+        ctx.clearRect(0, 0, newCanvas.width, newCanvas.height);
+        for (let i = 0; i < newWritingData.length; i++) {
+            addStroke(newCanvas,newWritingData[i]);
+        }
+    }
     const sendCanvasReferenceCallBack = (inboundCanvasContainer,inboundCanvas) => {
-        internalWritingData = writingData;
         newCanvas = inboundCanvas;
         for (let i = 0; i < internalWritingData.length; i++) {
             addStroke(newCanvas,internalWritingData[i]);
@@ -54,7 +59,9 @@ const DrawingTool = ({writingData, width, height, zIndex}) => {
                     toolType: shapeParams.current.shapeType,
                     color: shapeParams.current.shapeColor,
                     lineWidth: shapeParams.current.lineWidth,
-                    startingPosition: [e.offsetX,e.offsetY],
+                    startingPosition: [e.offsetX
+,e.offsetY
+],
                     plotPoints: [],
                 }
               break;
@@ -68,13 +75,17 @@ const DrawingTool = ({writingData, width, height, zIndex}) => {
     const dragHandler = (e) =>{
         if (!drawingInProgress.current && selectedShape >=0) {
             if (lastMouseDragPosition.current.xCoordinate === -1 || lastMouseDragPosition.current.yCoordinate === -1) {
-                lastMouseDragPosition.current.xCoordinate = e.offsetX;
-                lastMouseDragPosition.current.yCoordinate = e.offsetY;
+                lastMouseDragPosition.current.xCoordinate = e.offsetX
+;
+                lastMouseDragPosition.current.yCoordinate = e.offsetY
+;
             }
 
             const dragOffset = {
-                xCoordinate: e.offsetX - lastMouseDragPosition.current.xCoordinate,
-                yCoordinate: e.offsetY - lastMouseDragPosition.current.yCoordinate
+                xCoordinate: e.offsetX
+ - lastMouseDragPosition.current.xCoordinate,
+                yCoordinate: e.offsetY
+ - lastMouseDragPosition.current.yCoordinate
             };
             handleDrag(dragOffset,selectedShape,internalWritingData);
             /*if (selectedShape > 0) {
@@ -95,14 +106,18 @@ const DrawingTool = ({writingData, width, height, zIndex}) => {
             for (let i = 0; i < internalWritingData.length; i++) {
                 addStroke(newCanvas,internalWritingData[i]);
             }
-            lastMouseDragPosition.current.xCoordinate = e.offsetX;
-            lastMouseDragPosition.current.yCoordinate = e.offsetY;
+            lastMouseDragPosition.current.xCoordinate = e.offsetX
+;
+            lastMouseDragPosition.current.yCoordinate = e.offsetY
+;
         }
         if (drawingInProgress.current && selectedShape >=0) {
             switch(internalWritingData[selectedShape].toolType) {
                 
                 case "pen tool":
-                    const newPlotPoint = [e.offsetX,e.offsetY];
+                    const newPlotPoint = [e.offsetX
+,e.offsetY
+];
                     const pointCount = internalWritingData[selectedShape].plotPoints.length;
 
                     let lastPlotPoint = [];
@@ -153,6 +168,7 @@ const DrawingTool = ({writingData, width, height, zIndex}) => {
                 height={windowHeight}
                 zIndex={internalZIndex + 1}
                 getInternalWritingData={getInternalWritingData}
+                clearAndRepaintCanvas={clearAndRepaintCanvas}
             />
             <DrawingToolCanvas
                 width ={windowWidth}

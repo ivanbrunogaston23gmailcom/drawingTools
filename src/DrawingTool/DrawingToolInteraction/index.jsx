@@ -10,7 +10,8 @@ const DrawingToolInteraction = ({
     getInternalWritingData,
     reportInteractionCallBack,
     showDrawingToolBar,
-    zIndex
+    zIndex,
+    clearAndRepaintCanvas
 }) => {
     const internalGetWritingData = (typeof getInternalWritingData !== "function") ?  getInternalWritingData : ()=> { return {}};
     const internalreportInteractionCallBack = (typeof reportInteractionCallBack === "function") ? reportInteractionCallBack : ()=>{};
@@ -29,14 +30,16 @@ const DrawingToolInteraction = ({
         left: 0,
         isVisible: false
     })
-
-    const handleClick = (e) => {
-        e.stopPropagation();
-        const drawingInfo = getInternalWritingData();
-        const previouslySelectedShape = currentlySelectedShape.current;
-
+    const getCurrentlySelectedDrawing = () => {
+        return currentlySelectedShape.current;
+    }
+    const handleClick = (e, focusTargetInfo = {fromFocusTarget: false, selectedShape: -1}) => {
+        let drawingInfo = getInternalWritingData(); 
+        if(focusTargetInfo.fromFocusTarget){
+            return;
+        }
+        let previouslySelectedShape = currentlySelectedShape.current;
         currentlySelectedShape.current = clickDetection(e,drawingInfo);
-
         if (previouslySelectedShape === currentlySelectedShape.current) {
             return;
         }
@@ -57,19 +60,21 @@ const DrawingToolInteraction = ({
         }
     }
     
-    const functionTest = (e) => {
-        /*console.log("e",e);
-        console.log(interactionLayerReference.current.parentElement);*/
+    const dragHandler = (e) => {
+        const internalWritingData = getInternalWritingData();
+        const dragOffset = {
+            xCoordinate: e.movementX,
+            yCoordinate: e.movementY,
+        }
+        handleDrag(dragOffset,currentlySelectedShape.current,internalWritingData);
+        clearAndRepaintCanvas(internalWritingData);
+        
     }
     const internalZIndex = (!isNaN(zIndex) && Number(zIndex) >= 0 ) ? Number(zIndex) : 1;
     useEffect(()=>{
-        interactionLayerReference.current.addEventListener('mousedown', handleClick);
-        interactionLayerReference.current.addEventListener("mouseup", functionTest);
-        interactionLayerReference.current.addEventListener("mousemove", functionTest);
-        return (()=> { 
-            interactionLayerReference.current.removeEventListener('mousedown',handleClick);
-            interactionLayerReference.current.removeEventListener("mouseup", functionTest);
-            interactionLayerReference.current.removeEventListener("mousemove", functionTest);
+        interactionLayerReference.current.addEventListener("mousedown",handleClick);
+        return (()=> {
+            interactionLayerReference.current.removeEventListener("mousedown",handleClick);
         })
     },[]);
     return (
@@ -85,7 +90,10 @@ const DrawingToolInteraction = ({
                 width = {drawingTargetProps.width}
                 top = {drawingTargetProps.top}
                 left = {drawingTargetProps.left}
-                isVisible = {drawingTargetProps.isVisible}           
+                isVisible = {drawingTargetProps.isVisible}
+                handleClick = {handleClick}
+                getCurrentlySelectedDrawing = {getCurrentlySelectedDrawing}
+                dragHandler={dragHandler}      
             />
         </div>
         {
