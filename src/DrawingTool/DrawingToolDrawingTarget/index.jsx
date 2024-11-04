@@ -66,7 +66,7 @@ const DrawningToolDrawingTarget = ({
     }
 
 
-    useEffect(()=>{
+    /*useEffect(()=>{
         drawingToolFocusTarget.current.addEventListener("mousedown",handleCornerClick);
         drawingToolFocusTarget.current.addEventListener("mousemove", handleTargetDrag);
         drawingToolFocusTarget.current.addEventListener("mouseup",handleMouseUp);
@@ -75,7 +75,7 @@ const DrawningToolDrawingTarget = ({
             drawingToolFocusTarget.current.removeEventListener("mousemove", handleTargetDrag);
             drawingToolFocusTarget.current.removeEventListener("mouseup",handleMouseUp);
         })
-    },[]);
+    },[]);*/
     return(
         <div ref={drawingToolFocusTarget} id="drawingToolImageFocusTarget" style={{width: internalWidth, 
                     height: internalHeight,
