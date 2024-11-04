@@ -32,7 +32,7 @@ export const writingData = [
         toolType: "hollow triangle",
         color: "orange",
         lineWidth: 10,
-        startingPosition: [500,0],
+        startingPosition: [500,56],
         plotPoint2: [300,300],
         plotPoint3: [600,200]
     },

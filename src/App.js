@@ -7,6 +7,14 @@ function App() {
   return (
     <div className="App">
       tester toool
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
       <DrawingTool writingData ={writingData}
         width={window.innerWidth - 30}
         height={window.innerHeight - 30}
