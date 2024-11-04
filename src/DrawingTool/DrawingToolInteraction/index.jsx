@@ -38,6 +38,7 @@ const DrawingToolInteraction = ({
     }
     const handleClick = (e, focusTargetInfo = {fromFocusTarget: false, selectedShape: -1}) => {
         mouseIsClicked = true;
+        console.log(e.target.parentElement.parentElement.id);
         if(e.target.id === "drawingToolImageFocusTarget"){
             return;
         }
@@ -65,11 +66,11 @@ const DrawingToolInteraction = ({
     
     const dragHandler = (e) => {
         if (mouseIsClicked && currentlySelectedShape.current >= 0) {
+            shapeDraggingInProgress = true;
             const dragOffset = {
                 xCoordinate: e.movementX,
                 yCoordinate: e.movementY,
-            }
-            shapeDraggingInProgress = true;
+            }            
             let mainTarget = document.getElementById('drawingToolImageFocusTarget');
 
             mainTarget.style.left = `${Number(mainTarget.style.left.substring(0, mainTarget.style.left.length - 2)) + e.movementX}px`;
@@ -88,6 +89,7 @@ const DrawingToolInteraction = ({
                 currentlySelectedShape: currentlySelectedShape.current,
                 updatedimageList: internalWritingData
             };
+            changeDrawingTargetFocus(setDrawingTargetProps,internalWritingData[currentlySelectedShape.current]);
             internalreportInteractionCallBack(interactionCallBackMessage);
         }
     }
