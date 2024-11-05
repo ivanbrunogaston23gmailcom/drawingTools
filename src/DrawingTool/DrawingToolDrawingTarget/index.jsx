@@ -17,9 +17,12 @@ const DrawningToolDrawingTarget = ({
     const internalWidth = (isNaN(width)) ? 100 : width;
     const internalTop = (isNaN(top)) ? 0 : Number(top);
     const internalLeft =  (isNaN(left)) ? 0 : Number(left);
+    const drawingToolImageFocusTarget = useRef(null);
+
     const internalIsVisible = (typeof isVisible !== "boolean" || isVisible === false) ? "hidden" : "visible";
+
     return(
-        <div id="drawingToolImageFocusTarget" style={{width: internalWidth, 
+        <div ref={drawingToolImageFocusTarget} id="drawingToolImageFocusTarget" style={{width: internalWidth, 
                     height: internalHeight,
                     border: "2px solid #012A85",
                     position: "absolute",

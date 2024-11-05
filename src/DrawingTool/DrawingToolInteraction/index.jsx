@@ -26,6 +26,7 @@ const DrawingToolInteraction = ({
     });
     let mouseIsClicked = false;
     let shapeDraggingInProgress = false;
+    let shapeTargetSelectedElement = null;
     const [drawingTargetProps, setDrawingTargetProps] = useState({
         height: 1,
         width: 1,
@@ -38,8 +39,19 @@ const DrawingToolInteraction = ({
     }
     const handleClick = (e, focusTargetInfo = {fromFocusTarget: false, selectedShape: -1}) => {
         mouseIsClicked = true;
-        console.log(e.target.parentElement.parentElement.id);
-        if(e.target.id === "drawingToolImageFocusTarget"){
+        if (e?.target?.id === "drawingToolImageFocusTarget") {
+            shapeTargetSelectedElement = e?.target?.id;
+            return;
+        }
+        if(
+            e?.target?.parentElement?.parentElement?.id === "drawingToolImageFocusHandleOne" ||
+            e?.target?.parentElement?.parentElement?.id === "drawingToolImageFocusHandleTwo" ||
+            e?.target?.parentElement?.parentElement?.id === "drawingToolImageFocusHandleThree" ||
+            e?.target?.parentElement?.parentElement?.id === "drawingToolImageFocusHandleFour"
+        ){
+            shapeTargetSelectedElement = e?.target?.parentElement?.parentElement?.id;
+
+
             return;
         }
         let previouslySelectedShape = currentlySelectedShape.current;
@@ -65,23 +77,103 @@ const DrawingToolInteraction = ({
     }
     
     const dragHandler = (e) => {
-        if (mouseIsClicked && currentlySelectedShape.current >= 0) {
-            shapeDraggingInProgress = true;
-            const dragOffset = {
-                xCoordinate: e.movementX,
-                yCoordinate: e.movementY,
-            }            
-            let mainTarget = document.getElementById('drawingToolImageFocusTarget');
-
+        if (mouseIsClicked === false || currentlySelectedShape.current < 0) {
+            return;
+        }
+        shapeDraggingInProgress = true;
+        const dragOffset = {
+            xCoordinate: e.movementX,
+            yCoordinate: e.movementY,
+        }          
+        
+        let mainTarget = document.getElementById('drawingToolImageFocusTarget');
+        
+        if (shapeTargetSelectedElement === mainTarget.id) {
             mainTarget.style.left = `${Number(mainTarget.style.left.substring(0, mainTarget.style.left.length - 2)) + e.movementX}px`;
             mainTarget.style.top = `${Number(mainTarget.style.top.substring(0, mainTarget.style.top.length - 2)) + e.movementY}px`;
-
             handleDrag(dragOffset,currentlySelectedShape.current,internalWritingData);
             clearAndRepaintCanvas(internalWritingData);
+            return;
         }
+
+        if (shapeTargetSelectedElement === "drawingToolImageFocusHandleOne") {
+            let upperRightControlHandle = document.getElementById('drawingToolImageFocusHandleTwo');
+            let bottomLeftControlHandle = document.getElementById('drawingToolImageFocusHandleThree');
+            let bottomRightControlHandle = document.getElementById('drawingToolImageFocusHandleFour');
+
+            if (Number(mainTarget.style.width.substring(0, mainTarget.style.width.length - 2)) - e.movementX >= 20){
+                mainTarget.style.left = `${Number(mainTarget.style.left.substring(0, mainTarget.style.left.length - 2)) + e.movementX}px`;
+                mainTarget.style.width = `${Number(mainTarget.style.width.substring(0, mainTarget.style.width.length - 2)) - e.movementX}px`;
+                upperRightControlHandle.style.left = `${Number(upperRightControlHandle.style.left.substring(0, upperRightControlHandle.style.left.length - 2)) - e.movementX}px`;
+                bottomRightControlHandle.style.left = `${Number(bottomRightControlHandle.style.left.substring(0, bottomRightControlHandle.style.left.length - 2)) - e.movementX}px`;
+            }
+            
+            if (Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) - e.movementY >= 20) {
+                mainTarget.style.top = `${Number(mainTarget.style.top.substring(0, mainTarget.style.top.length - 2)) + e.movementY}px`;
+                mainTarget.style.height = `${Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) - e.movementY}px`;
+                bottomLeftControlHandle.style.top = `${Number(bottomLeftControlHandle.style.top.substring(0, bottomLeftControlHandle.style.top.length - 2)) - e.movementY}px`;
+                bottomRightControlHandle.style.top = `${Number(bottomRightControlHandle.style.top.substring(0, bottomRightControlHandle.style.top.length - 2)) - e.movementY}px`;
+            }
+        }
+        if (shapeTargetSelectedElement === "drawingToolImageFocusHandleTwo") {
+            let upperRightControlHandle = document.getElementById('drawingToolImageFocusHandleTwo');
+            let bottomLeftControlHandle = document.getElementById('drawingToolImageFocusHandleThree');
+            let bottomRightControlHandle = document.getElementById('drawingToolImageFocusHandleFour');
+
+            if (Number(mainTarget.style.width.substring(0, mainTarget.style.width.length - 2)) + e.movementX >= 20){
+                mainTarget.style.width = `${Number(mainTarget.style.width.substring(0, mainTarget.style.width.length - 2)) + e.movementX}px`;
+                upperRightControlHandle.style.left = `${Number(upperRightControlHandle.style.left.substring(0, upperRightControlHandle.style.left.length - 2)) + e.movementX}px`;
+                bottomRightControlHandle.style.left = `${Number(bottomRightControlHandle.style.left.substring(0, bottomRightControlHandle.style.left.length - 2)) + e.movementX}px`;
+            }
+            
+            if (Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) - e.movementY >= 20) {
+                mainTarget.style.top = `${Number(mainTarget.style.top.substring(0, mainTarget.style.top.length - 2)) + e.movementY}px`;
+                mainTarget.style.height = `${Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) - e.movementY}px`;
+                bottomLeftControlHandle.style.top = `${Number(bottomLeftControlHandle.style.top.substring(0, bottomLeftControlHandle.style.top.length - 2)) - e.movementY}px`;
+                bottomRightControlHandle.style.top = `${Number(bottomRightControlHandle.style.top.substring(0, bottomRightControlHandle.style.top.length - 2)) - e.movementY}px`;
+            }
+        }
+        if (shapeTargetSelectedElement === "drawingToolImageFocusHandleThree") {
+            let upperRightControlHandle = document.getElementById('drawingToolImageFocusHandleTwo');
+            let bottomLeftControlHandle = document.getElementById('drawingToolImageFocusHandleThree');
+            let bottomRightControlHandle = document.getElementById('drawingToolImageFocusHandleFour');
+
+            if (Number(mainTarget.style.width.substring(0, mainTarget.style.width.length - 2)) - e.movementX >= 20){
+                mainTarget.style.left = `${Number(mainTarget.style.left.substring(0, mainTarget.style.left.length - 2)) + e.movementX}px`;
+                mainTarget.style.width = `${Number(mainTarget.style.width.substring(0, mainTarget.style.width.length - 2)) - e.movementX}px`;
+                upperRightControlHandle.style.left = `${Number(upperRightControlHandle.style.left.substring(0, upperRightControlHandle.style.left.length - 2)) - e.movementX}px`;
+                bottomRightControlHandle.style.left = `${Number(bottomRightControlHandle.style.left.substring(0, bottomRightControlHandle.style.left.length - 2)) - e.movementX}px`;
+            }
+            
+            if (Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) + e.movementY >= 20) {
+                mainTarget.style.height = `${Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) + e.movementY}px`;
+                bottomLeftControlHandle.style.top = `${Number(bottomLeftControlHandle.style.top.substring(0, bottomLeftControlHandle.style.top.length - 2)) + e.movementY}px`;
+                bottomRightControlHandle.style.top = `${Number(bottomRightControlHandle.style.top.substring(0, bottomRightControlHandle.style.top.length - 2)) + e.movementY}px`;
+            }
+        }
+        if (shapeTargetSelectedElement === "drawingToolImageFocusHandleFour") {
+            let upperRightControlHandle = document.getElementById('drawingToolImageFocusHandleTwo');
+            let bottomLeftControlHandle = document.getElementById('drawingToolImageFocusHandleThree');
+            let bottomRightControlHandle = document.getElementById('drawingToolImageFocusHandleFour');
+
+            if (Number(mainTarget.style.width.substring(0, mainTarget.style.width.length - 2)) + e.movementX >= 20){
+                mainTarget.style.width = `${Number(mainTarget.style.width.substring(0, mainTarget.style.width.length - 2)) + e.movementX}px`;
+                upperRightControlHandle.style.left = `${Number(upperRightControlHandle.style.left.substring(0, upperRightControlHandle.style.left.length - 2)) + e.movementX}px`;
+                bottomRightControlHandle.style.left = `${Number(bottomRightControlHandle.style.left.substring(0, bottomRightControlHandle.style.left.length - 2)) + e.movementX}px`;
+            }
+            
+            if (Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) + e.movementY >= 20) {
+                mainTarget.style.height = `${Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) + e.movementY}px`;
+                bottomLeftControlHandle.style.top = `${Number(bottomLeftControlHandle.style.top.substring(0, bottomLeftControlHandle.style.top.length - 2)) + e.movementY}px`;
+                bottomRightControlHandle.style.top = `${Number(bottomRightControlHandle.style.top.substring(0, bottomRightControlHandle.style.top.length - 2)) + e.movementY}px`;
+            }
+        }
+        
+        
     }
     const handleMouseUp = (e) => {
         mouseIsClicked = false;
+        shapeTargetSelectedElement = null;
         if (shapeDraggingInProgress) {
             shapeDraggingInProgress = false;
             const interactionCallBackMessage = {
