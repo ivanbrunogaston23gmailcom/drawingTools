@@ -14,7 +14,7 @@ const DrawingTool = ({writingData, width, height, zIndex}) => {
         shapeColor: "brown",
         lineWidth: 10
     });
-    let selectedShape = -1;
+    let selectedShape = useRef(-1);
     const [internalWritingData, setWritingData] = useState(writingData);
     let canvasContainer = null;
     let newCanvas = null;
@@ -54,17 +54,17 @@ const DrawingTool = ({writingData, width, height, zIndex}) => {
         }
         if (newShape !== null) {
             internalWritingData.push(newShape);
-            selectedShape = internalWritingData.length-1;
+            selectedShape.current = internalWritingData.length-1;
         } 
     }
     const interactionCallBack = (interactionCallBackMessage) =>{
         switch(interactionCallBackMessage.userAction) {
             case "dragShape":
-                setWritingData(interactionCallBackMessage.updatedimageList);
+                setWritingData([...interactionCallBackMessage.updatedimageList]);
                 break;
             default:
                 break;
-          }
+        }
     }
     return (
         <div id="presentation" style={{position: "relative", zIndex: internalZIndex, width: windowWidth, height: windowHeight}}>
