@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import DrawingToolBar from "../DrawingToolBar";
 import './index.css';
 import DrawningToolDrawingTarget from "../DrawingToolDrawingTarget";
-import { addStroke, clickDetection, handleDrag } from '../../HelperFunctions';
+import { addStroke, clickDetection, handleDrag, strechImage, strechSideways } from '../../HelperFunctions';
 import { changeDrawingTargetFocus } from '../../HelperFunctions/ImageFocusTargetFunctions';
 
 
@@ -106,6 +106,8 @@ const DrawingToolInteraction = ({
                 mainTarget.style.width = `${Number(mainTarget.style.width.substring(0, mainTarget.style.width.length - 2)) - e.movementX}px`;
                 upperRightControlHandle.style.left = `${Number(upperRightControlHandle.style.left.substring(0, upperRightControlHandle.style.left.length - 2)) - e.movementX}px`;
                 bottomRightControlHandle.style.left = `${Number(bottomRightControlHandle.style.left.substring(0, bottomRightControlHandle.style.left.length - 2)) - e.movementX}px`;
+                strechSideways(dragOffset,currentlySelectedShape.current,internalWritingData);
+                clearAndRepaintCanvas(internalWritingData);
             }
             
             if (Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) - e.movementY >= 20) {
@@ -113,6 +115,8 @@ const DrawingToolInteraction = ({
                 mainTarget.style.height = `${Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) - e.movementY}px`;
                 bottomLeftControlHandle.style.top = `${Number(bottomLeftControlHandle.style.top.substring(0, bottomLeftControlHandle.style.top.length - 2)) - e.movementY}px`;
                 bottomRightControlHandle.style.top = `${Number(bottomRightControlHandle.style.top.substring(0, bottomRightControlHandle.style.top.length - 2)) - e.movementY}px`;
+                strechImage(dragOffset,currentlySelectedShape.current,internalWritingData);
+                clearAndRepaintCanvas(internalWritingData);
             }
         }
         if (shapeTargetSelectedElement === "drawingToolImageFocusHandleTwo") {
@@ -124,6 +128,8 @@ const DrawingToolInteraction = ({
                 mainTarget.style.width = `${Number(mainTarget.style.width.substring(0, mainTarget.style.width.length - 2)) + e.movementX}px`;
                 upperRightControlHandle.style.left = `${Number(upperRightControlHandle.style.left.substring(0, upperRightControlHandle.style.left.length - 2)) + e.movementX}px`;
                 bottomRightControlHandle.style.left = `${Number(bottomRightControlHandle.style.left.substring(0, bottomRightControlHandle.style.left.length - 2)) + e.movementX}px`;
+                strechSideways(dragOffset,currentlySelectedShape.current,internalWritingData,"from right");
+                clearAndRepaintCanvas(internalWritingData);
             }
             
             if (Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) - e.movementY >= 20) {
@@ -131,6 +137,8 @@ const DrawingToolInteraction = ({
                 mainTarget.style.height = `${Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) - e.movementY}px`;
                 bottomLeftControlHandle.style.top = `${Number(bottomLeftControlHandle.style.top.substring(0, bottomLeftControlHandle.style.top.length - 2)) - e.movementY}px`;
                 bottomRightControlHandle.style.top = `${Number(bottomRightControlHandle.style.top.substring(0, bottomRightControlHandle.style.top.length - 2)) - e.movementY}px`;
+                strechImage(dragOffset,currentlySelectedShape.current,internalWritingData);
+                clearAndRepaintCanvas(internalWritingData);
             }
         }
         if (shapeTargetSelectedElement === "drawingToolImageFocusHandleThree") {
@@ -143,12 +151,16 @@ const DrawingToolInteraction = ({
                 mainTarget.style.width = `${Number(mainTarget.style.width.substring(0, mainTarget.style.width.length - 2)) - e.movementX}px`;
                 upperRightControlHandle.style.left = `${Number(upperRightControlHandle.style.left.substring(0, upperRightControlHandle.style.left.length - 2)) - e.movementX}px`;
                 bottomRightControlHandle.style.left = `${Number(bottomRightControlHandle.style.left.substring(0, bottomRightControlHandle.style.left.length - 2)) - e.movementX}px`;
+                strechSideways(dragOffset,currentlySelectedShape.current,internalWritingData);
+                clearAndRepaintCanvas(internalWritingData);
             }
             
             if (Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) + e.movementY >= 20) {
                 mainTarget.style.height = `${Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) + e.movementY}px`;
                 bottomLeftControlHandle.style.top = `${Number(bottomLeftControlHandle.style.top.substring(0, bottomLeftControlHandle.style.top.length - 2)) + e.movementY}px`;
                 bottomRightControlHandle.style.top = `${Number(bottomRightControlHandle.style.top.substring(0, bottomRightControlHandle.style.top.length - 2)) + e.movementY}px`;
+                strechImage(dragOffset,currentlySelectedShape.current,internalWritingData, "from below");
+                clearAndRepaintCanvas(internalWritingData);
             }
         }
         if (shapeTargetSelectedElement === "drawingToolImageFocusHandleFour") {
@@ -160,12 +172,16 @@ const DrawingToolInteraction = ({
                 mainTarget.style.width = `${Number(mainTarget.style.width.substring(0, mainTarget.style.width.length - 2)) + e.movementX}px`;
                 upperRightControlHandle.style.left = `${Number(upperRightControlHandle.style.left.substring(0, upperRightControlHandle.style.left.length - 2)) + e.movementX}px`;
                 bottomRightControlHandle.style.left = `${Number(bottomRightControlHandle.style.left.substring(0, bottomRightControlHandle.style.left.length - 2)) + e.movementX}px`;
+                strechSideways(dragOffset,currentlySelectedShape.current,internalWritingData,"from right");
+                clearAndRepaintCanvas(internalWritingData);
             }
             
             if (Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) + e.movementY >= 20) {
                 mainTarget.style.height = `${Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) + e.movementY}px`;
                 bottomLeftControlHandle.style.top = `${Number(bottomLeftControlHandle.style.top.substring(0, bottomLeftControlHandle.style.top.length - 2)) + e.movementY}px`;
                 bottomRightControlHandle.style.top = `${Number(bottomRightControlHandle.style.top.substring(0, bottomRightControlHandle.style.top.length - 2)) + e.movementY}px`;
+                strechImage(dragOffset,currentlySelectedShape.current,internalWritingData, "from below");
+                clearAndRepaintCanvas(internalWritingData);
             }
         }
         

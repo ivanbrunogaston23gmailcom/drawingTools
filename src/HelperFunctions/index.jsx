@@ -264,3 +264,51 @@ export const handleDrag = (dragOffset,selectedShape,internalWritingData) => {
            // alert(`invalid drawing tool ${strokeInfo.toolType}`);
     }
 };
+
+export const strechImage = (movementOffset, selectedShape, internalWritingData, fromDirection = "from above") => {
+    switch (internalWritingData[selectedShape].toolType){        
+        case 'filled rectangle':            
+        case 'hollow rectangle':
+            if (fromDirection === "from above") {
+                internalWritingData[selectedShape].startingPosition[1] = internalWritingData[selectedShape].startingPosition[1] + movementOffset.yCoordinate;
+                internalWritingData[selectedShape].height = internalWritingData[selectedShape].height - movementOffset.yCoordinate;
+            }
+            if (fromDirection === "from below") {
+                //internalWritingData[selectedShape].startingPosition[1] = internalWritingData[selectedShape].startingPosition[1] + movementOffset.yCoordinate;
+                internalWritingData[selectedShape].height = internalWritingData[selectedShape].height + movementOffset.yCoordinate;
+            }
+        case 'ellipse':
+            break;
+        case 'hollow triangle':
+        case 'filled triangle':
+        break;
+        case 'pen tool':
+        break;
+        default:
+           // alert(`invalid drawing tool ${strokeInfo.toolType}`);
+    }
+}
+
+export const strechSideways = (movementOffset,selectedShape,internalWritingData, fromDirection = "from left") => {
+    switch (internalWritingData[selectedShape].toolType){        
+        case 'filled rectangle':            
+        case 'hollow rectangle':
+            if (fromDirection === "from left") {
+                internalWritingData[selectedShape].startingPosition[0] = internalWritingData[selectedShape].startingPosition[0] + movementOffset.xCoordinate;
+                internalWritingData[selectedShape].width = internalWritingData[selectedShape].width - movementOffset.xCoordinate;
+            }
+            if (fromDirection === "from right") {
+                //internalWritingData[selectedShape].startingPosition[0] = internalWritingData[selectedShape].startingPosition[0] + movementOffset.xCoordinate;
+                internalWritingData[selectedShape].width = internalWritingData[selectedShape].width + movementOffset.xCoordinate;
+            }
+        case 'ellipse':
+            break;
+        case 'hollow triangle':
+        case 'filled triangle':
+        break;
+        case 'pen tool':
+        break;
+        default:
+           // alert(`invalid drawing tool ${strokeInfo.toolType}`);
+    }
+}
