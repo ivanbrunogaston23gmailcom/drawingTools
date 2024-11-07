@@ -113,7 +113,7 @@ const DrawingTool = ({writingData}) => {
                     const ySide = Math.abs(lastPlotPoint[1] - newPlotPoint[1]);
                     const hypotenuse = Math.sqrt((xSide * xSide) + (ySide * ySide));
 
-                    if (hypotenuse > 7) {
+                    if (hypotenuse > 15) {
                         const newPointToAdd = {
                             xCoordinate: newPlotPoint[0],
                             yCoordinate: newPlotPoint[1]
