@@ -285,26 +285,15 @@ export const strechImage = (movementOffset, selectedShape, internalWritingData, 
             const maxYBeforeStretch = Math.max(internalWritingData[selectedShape].startingPosition[1], internalWritingData[selectedShape].plotPoint2[1],internalWritingData[selectedShape].plotPoint3[1]);
             const minYBeforeStretch = Math.min(internalWritingData[selectedShape].startingPosition[1], internalWritingData[selectedShape].plotPoint2[1],internalWritingData[selectedShape].plotPoint3[1]);
             
-            /*const heightBeforeStretch = maxYBeforeStretch - minYBeforeStretch;
-            const widthBeforeStretch = maxXBeforeStretch - minXBeforeStretch;
-
-            const tester = {
-                maxXBeforeStretch: maxXBeforeStretch,
-                minXBeforeStretch: minXBeforeStretch,
-                maxYBeforeStretch: maxYBeforeStretch,
-                minYBeforeStretch: minYBeforeStretch,
-                heightBeforeStretch:heightBeforeStretch,
-                widthBeforeStretch:widthBeforeStretch,
-                fullShapeData: internalWritingData[selectedShape]
-            }
-            console.log(tester);*/
             if (fromDirection === "from above") {
                 internalWritingData[selectedShape].startingPosition[1] = stretchScalingFunction(internalWritingData[selectedShape].startingPosition[1], maxYBeforeStretch,minYBeforeStretch,movementOffset.yCoordinate, fromDirection);
                 internalWritingData[selectedShape].plotPoint2[1] = stretchScalingFunction(internalWritingData[selectedShape].plotPoint2[1], maxYBeforeStretch,minYBeforeStretch,movementOffset.yCoordinate, fromDirection);
                 internalWritingData[selectedShape].plotPoint3[1] = stretchScalingFunction(internalWritingData[selectedShape].plotPoint3[1], maxYBeforeStretch,minYBeforeStretch,movementOffset.yCoordinate, fromDirection);
             }
             if (fromDirection === "from below") {
-                //internalWritingData[selectedShape].height = internalWritingData[selectedShape].height + movementOffset.yCoordinate;
+                internalWritingData[selectedShape].startingPosition[1] = stretchScalingFunction(internalWritingData[selectedShape].startingPosition[1], maxYBeforeStretch,minYBeforeStretch,movementOffset.yCoordinate, fromDirection);
+                internalWritingData[selectedShape].plotPoint2[1] = stretchScalingFunction(internalWritingData[selectedShape].plotPoint2[1], maxYBeforeStretch,minYBeforeStretch,movementOffset.yCoordinate, fromDirection);
+                internalWritingData[selectedShape].plotPoint3[1] = stretchScalingFunction(internalWritingData[selectedShape].plotPoint3[1], maxYBeforeStretch,minYBeforeStretch,movementOffset.yCoordinate, fromDirection);
             }
         break;
         case 'pen tool':
@@ -323,30 +312,56 @@ export const strechSideways = (movementOffset,selectedShape,internalWritingData,
                 internalWritingData[selectedShape].width = internalWritingData[selectedShape].width - movementOffset.xCoordinate;
             }
             if (fromDirection === "from right") {
-                //internalWritingData[selectedShape].startingPosition[0] = internalWritingData[selectedShape].startingPosition[0] + movementOffset.xCoordinate;
                 internalWritingData[selectedShape].width = internalWritingData[selectedShape].width + movementOffset.xCoordinate;
             }
         case 'ellipse':
             break;
         case 'hollow triangle':
         case 'filled triangle':
+            const maxXBeforeStretch = Math.max(internalWritingData[selectedShape].startingPosition[0], internalWritingData[selectedShape].plotPoint2[0],internalWritingData[selectedShape].plotPoint3[0]);
+            const minXBeforeStretch = Math.min(internalWritingData[selectedShape].startingPosition[0], internalWritingData[selectedShape].plotPoint2[0],internalWritingData[selectedShape].plotPoint3[0]);
+            const maxYBeforeStretch = Math.max(internalWritingData[selectedShape].startingPosition[1], internalWritingData[selectedShape].plotPoint2[1],internalWritingData[selectedShape].plotPoint3[1]);
+            const minYBeforeStretch = Math.min(internalWritingData[selectedShape].startingPosition[1], internalWritingData[selectedShape].plotPoint2[1],internalWritingData[selectedShape].plotPoint3[1]);
+            
+            if (fromDirection === "from left") {
+                internalWritingData[selectedShape].startingPosition[0] = stretchScalingFunction(internalWritingData[selectedShape].startingPosition[0], maxXBeforeStretch,minXBeforeStretch,movementOffset.xCoordinate, fromDirection);
+                internalWritingData[selectedShape].plotPoint2[0] = stretchScalingFunction(internalWritingData[selectedShape].plotPoint2[0], maxXBeforeStretch,minXBeforeStretch,movementOffset.xCoordinate, fromDirection);
+                internalWritingData[selectedShape].plotPoint3[0] = stretchScalingFunction(internalWritingData[selectedShape].plotPoint3[0], maxXBeforeStretch,minXBeforeStretch,movementOffset.xCoordinate, fromDirection);
+            }
+            if (fromDirection === "from right") {
+                internalWritingData[selectedShape].startingPosition[0] = stretchScalingFunction(internalWritingData[selectedShape].startingPosition[0], maxXBeforeStretch,minXBeforeStretch,movementOffset.xCoordinate, fromDirection);
+                internalWritingData[selectedShape].plotPoint2[0] = stretchScalingFunction(internalWritingData[selectedShape].plotPoint2[0], maxXBeforeStretch,minXBeforeStretch,movementOffset.xCoordinate, fromDirection);
+                internalWritingData[selectedShape].plotPoint3[0] = stretchScalingFunction(internalWritingData[selectedShape].plotPoint3[0], maxXBeforeStretch,minXBeforeStretch,movementOffset.xCoordinate, fromDirection);
+            }
         break;
         case 'pen tool':
         break;
         default:
-           // alert(`invalid drawing tool ${strokeInfo.toolType}`);
     }
 }
 
 
 const stretchScalingFunction = (pointToBeScaled, maxValueBeforeStretch,minValueBeforeStretch,stretchAmount, direction = "from above") => {
-    
     let scaledValue = pointToBeScaled;
-    if (direction === "from above"){
+    if (direction === "from above" || direction === "from left"){
         if (pointToBeScaled === minValueBeforeStretch) {
             scaledValue = pointToBeScaled + stretchAmount;
         }        
         if (pointToBeScaled === maxValueBeforeStretch) {
+            scaledValue = pointToBeScaled;
+        } 
+        if (pointToBeScaled !== minValueBeforeStretch && pointToBeScaled !== maxValueBeforeStretch) {
+            const percentageOfMax = (pointToBeScaled - minValueBeforeStretch)/(maxValueBeforeStretch - minValueBeforeStretch);            
+            if (pointToBeScaled + (percentageOfMax * stretchAmount) > minValueBeforeStretch) {
+                scaledValue = pointToBeScaled + (percentageOfMax * stretchAmount);
+            }
+        }
+    }
+    if (direction === "from below" || direction === "from right"){
+        if (pointToBeScaled === maxValueBeforeStretch) {
+            scaledValue = pointToBeScaled + stretchAmount;
+        }        
+        if (pointToBeScaled === minValueBeforeStretch) {
             scaledValue = pointToBeScaled;
         } 
         if (pointToBeScaled !== minValueBeforeStretch && pointToBeScaled !== maxValueBeforeStretch) {
