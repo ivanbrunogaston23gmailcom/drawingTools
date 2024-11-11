@@ -219,7 +219,6 @@ const DrawingToolInteraction = ({
         style={{zIndex: internalZIndex}}
     >
         <div>
-            Container
             <DrawningToolDrawingTarget
                 height = {drawingTargetProps.height}
                 width = {drawingTargetProps.width}
