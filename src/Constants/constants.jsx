@@ -17,7 +17,7 @@ export const writingData = [
         toolType: "hollow rectangle",
         color: "green",
         lineWidth: 10,
-        startingPosition: [0,510],
+        startingPosition: [10,510],
         width: 300,
         height: 300
     },
@@ -32,7 +32,7 @@ export const writingData = [
         toolType: "hollow triangle",
         color: "orange",
         lineWidth: 10,
-        startingPosition: [500,0],
+        startingPosition: [500,56],
         plotPoint2: [300,300],
         plotPoint3: [600,200]
     },
@@ -48,7 +48,7 @@ export const writingData = [
         toolType: "pen tool",
         color: "brown",
         lineWidth: 10,
-        startingPosition: [0,201],
+        startingPosition: [12,201],
         plotPoints: [
             
             {

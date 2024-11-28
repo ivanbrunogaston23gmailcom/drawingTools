@@ -6,9 +6,20 @@ import { writingData } from './Constants/constants.jsx';
 function App() {
   return (
     <div className="App">
-
       tester toool
-      <DrawingTool writingData ={writingData}/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <DrawingTool writingData ={writingData}
+        width={window.innerWidth - 30}
+        height={window.innerHeight - 30}
+        zIndex={0}
+      />
     </div>
   );
 }
