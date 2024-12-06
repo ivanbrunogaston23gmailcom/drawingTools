@@ -12,6 +12,8 @@ const DrawingToolInteraction = ({
     showDrawingToolBar,
     zIndex,
     clearAndRepaintCanvas,
+    height,
+    width
 }) => {
     const internalGetWritingData = (typeof getInternalWritingData === "function") ?  getInternalWritingData : ()=> { return {}};
     const internalWritingData = internalGetWritingData();
@@ -38,6 +40,8 @@ const DrawingToolInteraction = ({
         return currentlySelectedShape.current;
     }
     const handleClick = (e, focusTargetInfo = {fromFocusTarget: false, selectedShape: -1}) => {
+        let sel = document.getSelection();
+        sel.removeAllRanges();
         mouseIsClicked = true;
         if (e?.target?.id === "drawingToolImageFocusTarget") {
             shapeTargetSelectedElement = e?.target?.id;
@@ -88,7 +92,17 @@ const DrawingToolInteraction = ({
         
         let mainTarget = document.getElementById('drawingToolImageFocusTarget');
         
+
+        //console.log(mainTarget.style.width);
         if (shapeTargetSelectedElement === mainTarget.id) {
+            const xBoundaryLeft = Number(mainTarget.style.left.substring(0, mainTarget.style.left.length - 2)) + e.movementX;
+            const xBoundaryRight = Number(mainTarget.style.left.substring(0, mainTarget.style.left.length - 2)) + Number(mainTarget.style.width.substring(0, mainTarget.style.width.length - 2)) + e.movementX;
+            const yBoundaryTop = Number(mainTarget.style.top.substring(0, mainTarget.style.top.length - 2)) + e.movementY;
+            const yBoundaryBottom = Number(mainTarget.style.top.substring(0, mainTarget.style.top.length - 2)) + Number(mainTarget.style.height.substring(0, mainTarget.style.height.length - 2)) + e.movementY;
+            if (xBoundaryLeft < 0 || xBoundaryRight >= width || yBoundaryTop < 0 || yBoundaryBottom >= height  ) {
+                handleMouseUp(e);
+                return;
+            }
             mainTarget.style.left = `${Number(mainTarget.style.left.substring(0, mainTarget.style.left.length - 2)) + e.movementX}px`;
             mainTarget.style.top = `${Number(mainTarget.style.top.substring(0, mainTarget.style.top.length - 2)) + e.movementY}px`;
             handleDrag(dragOffset,currentlySelectedShape.current,internalWritingData);
@@ -188,6 +202,8 @@ const DrawingToolInteraction = ({
         
     }
     const handleMouseUp = (e) => {
+        let sel = document.getSelection();
+        sel.removeAllRanges();
         mouseIsClicked = false;
         shapeTargetSelectedElement = null;
         if (shapeDraggingInProgress) {
